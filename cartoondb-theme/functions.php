@@ -15,7 +15,7 @@ function cartoondb_theme_setup() {
 add_action('after_setup_theme', 'cartoondb_theme_setup');
 
 function cartoondb_enqueue_assets() {
-    wp_enqueue_style('cartoondb-style', get_stylesheet_uri(), [], '1.0.0');
+    wp_enqueue_style('cartoondb-style', get_stylesheet_uri(), [], '1.1.0');
     wp_enqueue_style('cartoondb-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap', [], null);
 }
 add_action('wp_enqueue_scripts', 'cartoondb_enqueue_assets');
