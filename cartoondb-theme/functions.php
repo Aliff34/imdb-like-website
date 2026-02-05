@@ -63,20 +63,11 @@ function cartoondb_register_movie_meta() {
             return current_user_can('edit_posts');
         },
     ]);
-    register_post_meta('movie', 'cartoondb_trailer_video_id', [
-        'single' => true,
-        'type' => 'number',
-        'show_in_rest' => true,
-        'sanitize_callback' => 'absint',
-        'auth_callback' => function () {
-            return current_user_can('edit_posts');
-        },
-    ]);
-    register_post_meta('movie', 'cartoondb_cast_json', [
+    register_post_meta('movie', 'cartoondb_cast', [
         'single' => true,
         'type' => 'string',
         'show_in_rest' => true,
-        'sanitize_callback' => 'wp_kses_post',
+        'sanitize_callback' => 'sanitize_textarea_field',
         'auth_callback' => function () {
             return current_user_can('edit_posts');
         },
@@ -147,7 +138,7 @@ function cartoondb_admin_assets($hook) {
         'cartoondb-admin',
         get_template_directory_uri() . '/assets/js/admin-media.js',
         ['jquery'],
-        '1.1.0',
+        '1.0.0',
         true
     );
 }
@@ -157,27 +148,16 @@ function cartoondb_render_movie_metabox($post) {
     wp_nonce_field('cartoondb_save_movie_meta', 'cartoondb_movie_meta_nonce');
 
     $trailer = get_post_meta($post->ID, 'cartoondb_trailer_url', true);
-    $trailer_video_id = get_post_meta($post->ID, 'cartoondb_trailer_video_id', true);
-    $cast_json = get_post_meta($post->ID, 'cartoondb_cast_json', true);
+    $cast = get_post_meta($post->ID, 'cartoondb_cast', true);
     $rating = get_post_meta($post->ID, 'cartoondb_rating', true);
     $release_year = get_post_meta($post->ID, 'cartoondb_release_year', true);
     $runtime = get_post_meta($post->ID, 'cartoondb_runtime', true);
     $gallery_ids = get_post_meta($post->ID, 'cartoondb_gallery_ids', true);
-    $cast_items = $cast_json ? json_decode($cast_json, true) : [];
-    if (!is_array($cast_items)) {
-        $cast_items = [];
-    }
 
     ?>
     <p>
         <label for="cartoondb_trailer_url"><strong><?php esc_html_e('Trailer URL (YouTube/Vimeo)', 'cartoondb'); ?></strong></label>
         <input type="url" name="cartoondb_trailer_url" id="cartoondb_trailer_url" value="<?php echo esc_attr($trailer); ?>" class="widefat" />
-    </p>
-    <p>
-        <label for="cartoondb_trailer_video_id"><strong><?php esc_html_e('Trailer Video Upload', 'cartoondb'); ?></strong></label>
-        <input type="text" name="cartoondb_trailer_video_id" id="cartoondb_trailer_video_id" value="<?php echo esc_attr($trailer_video_id); ?>" class="widefat" />
-        <button type="button" class="button" id="cartoondb_trailer_upload"><?php esc_html_e('Select Trailer Video', 'cartoondb'); ?></button>
-        <small><?php esc_html_e('Upload or select a video from the media library.', 'cartoondb'); ?></small>
     </p>
     <p>
         <label for="cartoondb_release_year"><strong><?php esc_html_e('Release Year', 'cartoondb'); ?></strong></label>
@@ -191,56 +171,16 @@ function cartoondb_render_movie_metabox($post) {
         <label for="cartoondb_rating"><strong><?php esc_html_e('Rating (0-10)', 'cartoondb'); ?></strong></label>
         <input type="number" step="0.1" min="0" max="10" name="cartoondb_rating" id="cartoondb_rating" value="<?php echo esc_attr($rating); ?>" class="widefat" />
     </p>
-
-    <div class="cartoondb-metabox-section">
-        <h4><?php esc_html_e('Cast & Crew', 'cartoondb'); ?></h4>
-        <input type="hidden" id="cartoondb_cast_json" name="cartoondb_cast_json" value="<?php echo esc_attr($cast_json); ?>" />
-        <div id="cartoondb_cast_list">
-            <?php foreach ($cast_items as $index => $item) : ?>
-                <div class="cartoondb-cast-item">
-                    <div class="cartoondb-cast-fields">
-                        <input type="text" class="cartoondb-cast-name" placeholder="<?php esc_attr_e('Name', 'cartoondb'); ?>" value="<?php echo esc_attr($item['name'] ?? ''); ?>" />
-                        <input type="text" class="cartoondb-cast-role" placeholder="<?php esc_attr_e('Role', 'cartoondb'); ?>" value="<?php echo esc_attr($item['role'] ?? ''); ?>" />
-                        <input type="hidden" class="cartoondb-cast-image-id" value="<?php echo esc_attr($item['image_id'] ?? ''); ?>" />
-                    </div>
-                    <div class="cartoondb-cast-media">
-                        <?php
-                        $image_url = '';
-                        if (!empty($item['image_id'])) {
-                            $image_url = wp_get_attachment_image_url((int) $item['image_id'], 'thumbnail');
-                        }
-                        ?>
-                        <img class="cartoondb-cast-preview" src="<?php echo esc_url($image_url); ?>" alt="" style="<?php echo $image_url ? '' : 'display:none;'; ?>" />
-                        <button type="button" class="button cartoondb-cast-upload"><?php esc_html_e('Add Photo', 'cartoondb'); ?></button>
-                        <button type="button" class="button-link cartoondb-cast-remove"><?php esc_html_e('Remove', 'cartoondb'); ?></button>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <button type="button" class="button" id="cartoondb_cast_add"><?php esc_html_e('Add Cast Member', 'cartoondb'); ?></button>
-    </div>
-
+    <p>
+        <label for="cartoondb_cast"><strong><?php esc_html_e('Cast & Crew', 'cartoondb'); ?></strong></label>
+        <textarea name="cartoondb_cast" id="cartoondb_cast" class="widefat" rows="4"><?php echo esc_textarea($cast); ?></textarea>
+    </p>
     <p>
         <label for="cartoondb_gallery_ids"><strong><?php esc_html_e('Gallery Images', 'cartoondb'); ?></strong></label>
         <input type="text" name="cartoondb_gallery_ids" id="cartoondb_gallery_ids" value="<?php echo esc_attr($gallery_ids); ?>" class="widefat" />
         <button type="button" class="button" id="cartoondb_gallery_upload"><?php esc_html_e('Select Gallery Images', 'cartoondb'); ?></button>
         <small><?php esc_html_e('Selected image IDs will appear above.', 'cartoondb'); ?></small>
     </p>
-
-    <script type="text/template" id="cartoondb_cast_template">
-        <div class="cartoondb-cast-item">
-            <div class="cartoondb-cast-fields">
-                <input type="text" class="cartoondb-cast-name" placeholder="<?php esc_attr_e('Name', 'cartoondb'); ?>" />
-                <input type="text" class="cartoondb-cast-role" placeholder="<?php esc_attr_e('Role', 'cartoondb'); ?>" />
-                <input type="hidden" class="cartoondb-cast-image-id" />
-            </div>
-            <div class="cartoondb-cast-media">
-                <img class="cartoondb-cast-preview" src="" alt="" style="display:none;" />
-                <button type="button" class="button cartoondb-cast-upload"><?php esc_html_e('Add Photo', 'cartoondb'); ?></button>
-                <button type="button" class="button-link cartoondb-cast-remove"><?php esc_html_e('Remove', 'cartoondb'); ?></button>
-            </div>
-        </div>
-    </script>
     <?php
 }
 
@@ -263,8 +203,7 @@ function cartoondb_save_movie_meta($post_id) {
 
     $fields = [
         'cartoondb_trailer_url' => 'esc_url_raw',
-        'cartoondb_trailer_video_id' => 'absint',
-        'cartoondb_cast_json' => 'wp_kses_post',
+        'cartoondb_cast' => 'sanitize_textarea_field',
         'cartoondb_rating' => 'floatval',
         'cartoondb_release_year' => 'sanitize_text_field',
         'cartoondb_runtime' => 'sanitize_text_field',
@@ -295,20 +234,4 @@ function cartoondb_get_gallery_images($post_id) {
         'post_type' => 'attachment',
         'post__in' => $ids_array,
     ]);
-}
-
-function cartoondb_get_cast_members($post_id) {
-    $cast_json = get_post_meta($post_id, 'cartoondb_cast_json', true);
-    if (!$cast_json) {
-        return [];
-    }
-
-    $decoded = json_decode($cast_json, true);
-    if (!is_array($decoded)) {
-        return [];
-    }
-
-    return array_filter($decoded, function ($member) {
-        return !empty($member['name']) || !empty($member['role']) || !empty($member['image_id']);
-    });
 }

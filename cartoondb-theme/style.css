@@ -4,7 +4,7 @@ Theme URI: https://example.com/cartoondb
 Author: CartoonDB Team
 Author URI: https://example.com
 Description: A modern, responsive WordPress theme inspired by IMDb for CartoonDB.
-Version: 1.1.0
+Version: 1.0.0
 Requires at least: 6.0
 Tested up to: 6.5
 Requires PHP: 8.0
@@ -15,13 +15,12 @@ Text Domain: cartoondb
   --background: #0f1115;
   --surface: #151924;
   --surface-alt: #1c2230;
-  --surface-strong: #20283a;
   --text: #eef0f6;
   --muted: #9aa3b2;
   --accent: #f5c518;
   --accent-strong: #ffdd57;
   --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }
 
 * {
@@ -50,7 +49,7 @@ img {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(15, 17, 21, 0.92);
+  background: rgba(15, 17, 21, 0.95);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
@@ -92,7 +91,7 @@ img {
 .hero {
   background: radial-gradient(circle at top, rgba(245, 197, 24, 0.18), transparent 60%),
     linear-gradient(180deg, rgba(28, 34, 48, 0.9), transparent 80%);
-  padding: 72px 24px 40px;
+  padding: 64px 24px 32px;
 }
 
 .hero-content {
@@ -136,7 +135,6 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
 }
 
 .section-title h2 {
@@ -153,63 +151,27 @@ img {
 }
 
 .movie-card {
-  position: relative;
   background: var(--surface);
-  border-radius: 18px;
+  border-radius: 16px;
   overflow: hidden;
-  min-height: 320px;
-  border: 1px solid transparent;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  transition: transform 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
-  background-size: cover;
-  background-position: center;
-}
-
-.movie-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(15, 17, 21, 0.1), rgba(15, 17, 21, 0.9));
-}
-
-.movie-card-link {
-  position: relative;
-  z-index: 2;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  height: 100%;
-  padding: 20px;
-}
-
-.movie-card-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 17, 21, 0.45);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.movie-card-content {
-  position: relative;
-  display: grid;
-  gap: 10px;
-  transform: translateY(10px);
-  transition: transform 0.3s ease;
+  min-height: 100%;
+  border: 1px solid transparent;
+  transition: transform 0.3s ease, border 0.3s ease;
 }
 
 .movie-card:hover {
-  transform: translateY(-8px) scale(1.01);
-  border-color: rgba(245, 197, 24, 0.5);
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
+  transform: translateY(-6px);
+  border-color: rgba(245, 197, 24, 0.4);
 }
 
-.movie-card:hover .movie-card-overlay {
-  opacity: 1;
-}
-
-.movie-card:hover .movie-card-content {
-  transform: translateY(0);
+.movie-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
 }
 
 .movie-meta {
@@ -230,7 +192,7 @@ img {
 }
 
 .movie-actions {
-  margin-top: 12px;
+  margin-top: auto;
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -262,22 +224,10 @@ img {
   gap: 32px;
 }
 
-.single-poster img {
-  border-radius: 20px;
-  box-shadow: var(--shadow);
-}
-
 .single-content {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.single-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
 }
 
 .detail-grid {
@@ -292,48 +242,7 @@ img {
   border-radius: 12px;
 }
 
-.cast-grid {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 18px;
-}
-
-.cast-card {
-  background: var(--surface);
-  padding: 16px;
-  border-radius: 14px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  border: 1px solid var(--border);
-}
-
-.cast-photo img,
-.cast-photo .cast-placeholder {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--surface-strong);
-  display: grid;
-  place-items: center;
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.cast-empty {
-  background: var(--surface-alt);
-  padding: 24px;
-  border-radius: 16px;
-  text-align: center;
-  color: var(--muted);
-}
-
 .gallery {
-  max-width: 1200px;
-  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
